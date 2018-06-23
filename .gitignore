@@ -1,3 +1,4 @@
 *.pyc
-venvapu/
+.DS_Store
+venv/
 .idea/

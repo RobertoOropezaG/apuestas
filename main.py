@@ -5,8 +5,8 @@ from flask_login import LoginManager, login_user, login_required, current_user, 
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-from repository.models import *
-
+from repository.models import db
+from logic import authentication
 
 # Setup application and database
 app = Flask(__name__)
@@ -37,21 +37,11 @@ def hello_world():
 
 @google_login.login_success
 def login_success(token, profile):
-    identity = Identity.query.filter_by(email=profile['email']).first()
+    user = authentication.save_login(token, profile)
 
-    if not identity:
-        return jsonify(response='You can''t use this system with this email. Ask Roberto about this.', email=profile['email'])
-
-    identity.update(profile)
-
-    if not identity.users:
-        user = User(nick=identity.first_name, token=token['access_token'])
-        identity.users.append(user)
-    else:
-        user = identity.users[0]
-        user.token = token['access_token']
-
-    db.session.commit()
+    if not user:
+        return jsonify(response='You can''t use this system with this email. Ask Roberto about this.',
+                       email=profile['email'])
 
     login_user(user)
 
@@ -72,8 +62,9 @@ def logout():
 @login_manager.user_loader
 def load_user(user_id):
     print('loading user', user_id)
+
     try:
-        user = User.query.get(user_id)
+        user = authentication.get_user_by_id(user_id)
         return user
     except:
         return None

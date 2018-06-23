@@ -14,8 +14,7 @@ class Identity(db.Model):
     picture = db.Column(db.String(200))
     users = relationship('User', back_populates='identity')
 
-    def update(self, profile):
-        '''Update from google profile'''
+    def update_from_google(self, profile):
         self.full_name = profile['name']
         self.first_name = profile['given_name']
         self.last_name = profile['family_name']
