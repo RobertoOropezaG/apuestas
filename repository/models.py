@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
@@ -22,7 +22,7 @@ class Identity(db.Model):
         self.picture = profile['picture']
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     nick = db.Column(db.String(100), unique=True, nullable=False)
     identity_id = db.Column(db.Integer, db.ForeignKey('identity.id'))
