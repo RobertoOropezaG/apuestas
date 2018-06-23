@@ -21,13 +21,8 @@ class User(db.Model):
     token = db.Column(db.String(200))
 
 
-def create_database_if_needed(app):
-    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-    if engine.dialect.has_table(engine, 'identity'):
-        return
-
-    print('Creating database')
-    db.create_all()
+def seed_data(app):
+    print('Seeding database')
     identity = Identity(email = 'oropezaroberto@gmail.com')
     db.session.add(identity)
     db.session.commit()
