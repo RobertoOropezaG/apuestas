@@ -8,9 +8,18 @@ db = SQLAlchemy()
 class Identity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    name = db.Column(db.String(200))
+    full_name = db.Column(db.String(200))
+    first_name = db.Column(db.String(200))
+    last_name = db.Column(db.String(200))
     picture = db.Column(db.String(200))
     users = relationship('User', back_populates='identity')
+
+    def update(self, profile):
+        '''Update from google profile'''
+        self.full_name = profile['name']
+        self.first_name = profile['given_name']
+        self.last_name = profile['family_name']
+        self.picture = profile['picture']
 
 
 class User(db.Model):
@@ -23,6 +32,6 @@ class User(db.Model):
 
 def seed_data(app):
     print('Seeding database')
-    identity = Identity(email = 'oropezaroberto@gmail.com')
+    identity = Identity(email='oropezaroberto@gmail.com')
     db.session.add(identity)
     db.session.commit()
