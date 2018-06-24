@@ -32,8 +32,10 @@ class User(db.Model, UserMixin):
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code3 = db.Column(db.String(3), unique=True, nullable=False)
+    code_fifa = db.Column(db.String(3), unique=True, nullable=False)
     name = db.Column(db.String(200), unique=True, nullable=False)
     flag_picture = db.Column(db.String(200))
+    population = db.Column(db.Integer)
 
 
 class Match(db.Model):

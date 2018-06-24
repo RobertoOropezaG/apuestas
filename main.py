@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, redirect, url_for, render_template
+from flask import Flask, jsonify, redirect, url_for, render_template, make_response
 from flask_oauth2_login import GoogleLogin
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 
@@ -6,7 +6,7 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
 from repository.models import db
-from logic import authentication
+from logic import authentication, matches
 
 # Setup application and database
 app = Flask(__name__, static_folder='static')
@@ -29,7 +29,7 @@ def hello_world():
     if not current_user.is_authenticated:
         return render_template('ask_login.html', login_url=google_login.authorization_url())
     else:
-        return redirect(url_for('main'))
+        return render_template('main.html', current_user=current_user)
 
 
 @google_login.login_success
@@ -53,7 +53,7 @@ def login_failure(e):
 @app.route('/logout')
 def logout():
     logout_user()
-    return render_template('logged_out.html')
+    return render_template('logged_out.html', login_url=google_login.authorization_url())
 
 
 @login_manager.user_loader
@@ -67,10 +67,14 @@ def load_user(user_id):
         return None
 
 
-@app.route('/main')
+@app.route('/api/load_teams')
 @login_required
-def main():
-    return render_template('main.html', nick=current_user.nick )
+def load_teams():
+    result, error = matches.load_teams()
+
+    if error: return make_response(jsonify(error=error), 201)
+
+    return jsonify(response='success')
 
 
 if __name__ == '__main__':
