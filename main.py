@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, redirect, url_for
+from flask import Flask, jsonify, redirect, url_for, render_template
 from flask_oauth2_login import GoogleLogin
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 
@@ -9,7 +9,7 @@ from repository.models import db
 from logic import authentication
 
 # Setup application and database
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.config.from_object('config.DevelopmentConfig')
 db.init_app(app)
 
@@ -27,10 +27,7 @@ login_manager.init_app(app)
 @app.route('/')
 def hello_world():
     if not current_user.is_authenticated:
-        return """
-        <html>
-        Hello, please <a href="{}">Login with Google</a> to use this app
-        """.format(google_login.authorization_url())
+        return render_template('ask_login.html', login_url=google_login.authorization_url())
     else:
         return redirect(url_for('main'))
 
@@ -56,7 +53,7 @@ def login_failure(e):
 @app.route('/logout')
 def logout():
     logout_user()
-    return jsonify(message='You''ve been logged out')
+    return render_template('logged_out.html')
 
 
 @login_manager.user_loader
@@ -73,10 +70,7 @@ def load_user(user_id):
 @app.route('/main')
 @login_required
 def main():
-    return """
-        <html>
-        Hi {}, you are in the app <a href="{}">Logout</a> anytime.
-        """.format(current_user.nick, url_for('logout'))
+    return render_template('main.html', nick=current_user.nick )
 
 
 if __name__ == '__main__':
