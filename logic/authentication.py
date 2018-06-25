@@ -9,7 +9,14 @@ def save_login(token, profile):
     identity.update_from_google(profile)
 
     if not identity.users:
-        user = User(nick=identity.first_name, token=token['access_token'])
+        
+        subscript = 1
+        existing_user = User.query.filter_by(nick=identity.first_name).first()
+        while existing_user:
+            subscript += 1 
+            existing_user = User.query.filter_by(nick=identity.first_name + str(subscript)).first()
+        
+        user = User(nick=identity.first_name + (str(subscript) if subscript > 1 else ''), token=token['access_token'])
         identity.users.append(user)
     else:
         user = identity.users[0]
