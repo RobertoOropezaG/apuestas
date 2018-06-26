@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, redirect, url_for, render_template, make_response
+from flask import Flask, jsonify, redirect, url_for, render_template, make_response, request
 from flask_oauth2_login import GoogleLogin
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 
@@ -25,7 +25,7 @@ login_manager.init_app(app)
 
 
 @app.route('/')
-def hello_world():
+def main():
     if not current_user.is_authenticated:
         return render_template('ask_login.html', login_url=google_login.authorization_url())
     else:
@@ -42,7 +42,7 @@ def login_success(token, profile):
 
     login_user(user)
 
-    return jsonify(token=token, profile=profile)
+    return redirect(url_for('main')) #jsonify(token=token, profile=profile)
 
 
 @google_login.login_failure
@@ -57,14 +57,9 @@ def logout():
 
 
 @login_manager.user_loader
-def load_user(user_id):
-    print('loading user', user_id)
-
-    try:
-        user = authentication.get_user_by_id(user_id)
-        return user
-    except:
-        return None
+def load_user(signature):
+    user = authentication.get_user_by_signature(signature)
+    return user
 
 
 @app.route('/api/load_teams')
@@ -75,6 +70,27 @@ def load_teams():
     if error: return make_response(jsonify(error=error), 201)
 
     return jsonify(response='success')
+
+
+@app.route('/api/matches/<date>', methods=['GET'])
+@login_required
+def get_matches(date):
+    matches.get_matches
+    return jsonify(matches='not implemented')
+
+
+@app.route('/api/admin/login', methods=['POST'])
+@login_required
+def admin_login():
+    password = request.json['admin_password']
+    user, error = authentication.authenticate_admin_password(password)
+    
+    if error:
+        return make_response(jsonify(error=error), 401)
+
+    login_user(user)
+
+    return jsonify(message='hello')
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+LOGGED_AS_ADMIN_SIGNATURE = '--logged_as_admin'
 
 class Identity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +28,26 @@ class User(db.Model, UserMixin):
     identity_id = db.Column(db.Integer, db.ForeignKey('identity.id'))
     identity = relationship('Identity', back_populates='users')
     token = db.Column(db.String(200))
+    can_be_admin = db.Column(db.Boolean)
+    admin_password = db.Column(db.String(200))
+    logged_as_admin = False
+    
+    def get_id(self):
+        if self.logged_as_admin:
+            return str(self.id) + LOGGED_AS_ADMIN_SIGNATURE
+        else:
+            return str(self.id)
+
+    def matches_admin_password(self, plain_password):
+        return self.admin_password == plain_password
+
+    @staticmethod
+    def includes_admin_signature(user_id):
+        return user_id.endswith(LOGGED_AS_ADMIN_SIGNATURE)
+
+    @staticmethod
+    def get_id_from_admin_signature(user_id):
+        return user_id[:-len(LOGGED_AS_ADMIN_SIGNATURE)]
 
 
 class Team(db.Model):
@@ -72,7 +93,6 @@ class Bet(db.Model):
 
 
 def seed_data(app):
-    print('Seeding database')
     identity = Identity(email='oropezaroberto@gmail.com')
     db.session.add(identity)
     db.session.commit()

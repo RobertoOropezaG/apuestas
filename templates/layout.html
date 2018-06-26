@@ -27,7 +27,7 @@
   <div class="title-bar-title">Menu</div>
 </div>
 
-<div class="top-bar hide-for-small-only">
+<div class="top-bar hide-for-small-only" id="top-bar">
   <div class="top-bar-left">
     <ul class="menu">
       <li class="menu-text">Apuestas</li>
@@ -47,18 +47,57 @@
           {% endif %}
         </a>
       </li>
-      <li>
+      
         {% if current_user.is_authenticated %}
-          <a class="button" href="{{ url_for('logout') }}">Logout</a>
+          {% if current_user.can_be_admin %}
+            {% if current_user.logged_as_admin %}
+            <li>
+                <button class="button">
+                    Leave admin
+                </a>
+            </li>
+            {% else %}
+            <li>
+                <button class="button"  data-toggle="loginAdminModal">Login as admin</button>
+            </li>
+            {% endif %}
+          {% endif %}
+          <li>
+              <a class="button" href="{{ url_for('logout') }}">Logout</a>
+          </li>
         {% else %}
-          <a class="button" href="{{ login_url }}">Login</a>
+          <li>
+              <a class="button" href="{{ login_url }}">Login</a>
+          </li>
         {% endif %}
       </li>
     </ul>
   </div>
+
+    <!-- Top bar modals -->
+    <div class="reveal" id="loginAdminModal" data-reveal data-close-on-click="true">
+      <p class="lead">Login as admin</p>
+        <label>Password
+          <input type="password" placeholder="enter your admin's password"
+                data-bind="value: admin_password">
+        </label>
+        <button class="button" 
+              data-bind="click: submitAdminLogin">Login</button>
+
+      <button class="close-button" data-close aria-label="Close reveal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
 </div>
 <!-- /Navigation -->
-
+<div class="callout warning" data-closable style="display: none"
+    id="wrongAdminPassword">
+  <h5>Wrong admin password</h5>
+  <p>You can try to login as admin again</p>
+  <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 <br>
 <div class="body">
     {% block body %}
