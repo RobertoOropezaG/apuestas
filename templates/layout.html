@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundicons/3.0.0/foundation-icons.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation-datepicker/1.5.6/css/foundation-datepicker.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/js/foundation.js"></script>
@@ -13,10 +15,18 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation-datepicker/1.5.0/js/foundation-datepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation-datepicker/1.5.6/js/foundation-datepicker.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.1/knockout-debug.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.1/knockout-debug.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js"></script>
 
-<script src="{{ url_for('static', filename='app.js') }}"></script>
+  <script>
+  {% if server_data %}
+    var serverData = JSON.parse('{{ server_data | tojson | safe}}');
+  {% else %}
+    var serverData = {};
+  {% endif %}
+  </script>
+  
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
 </head>
 <body>
 
@@ -50,17 +60,14 @@
       
         {% if current_user.is_authenticated %}
           {% if current_user.can_be_admin %}
-            {% if current_user.logged_as_admin %}
-            <li>
-                <button class="button">
+            <li data-bind="visible: logged_as_admin">
+                <button class="button" data-bind="click: submitAdminLogout">
                     Leave admin
-                </a>
+                </button>
             </li>
-            {% else %}
-            <li>
-                <button class="button"  data-toggle="loginAdminModal">Login as admin</button>
+            <li data-bind="visible: !logged_as_admin()">
+                <button class="button" data-toggle="loginAdminModal">Login as admin</button>
             </li>
-            {% endif %}
           {% endif %}
           <li>
               <a class="button" href="{{ url_for('logout') }}">Logout</a>
@@ -70,7 +77,6 @@
               <a class="button" href="{{ login_url }}">Login</a>
           </li>
         {% endif %}
-      </li>
     </ul>
   </div>
 
@@ -91,9 +97,9 @@
 </div>
 <!-- /Navigation -->
 <div class="callout warning" data-closable style="display: none"
-    id="wrongAdminPassword">
-  <h5>Wrong admin password</h5>
-  <p>You can try to login as admin again</p>
+    id="commonCallout">
+  <h5>place holder</h5>
+  <p>place holder</p>
   <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
     <span aria-hidden="true">&times;</span>
   </button>

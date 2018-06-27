@@ -62,3 +62,16 @@ def authenticate_admin_password(admin_password):
     current_user.logged_as_admin = True
 
     return current_user, None
+
+
+def logout_admin():
+    if not current_user.can_be_admin:
+        return False, "Current user can't be an admin"
+
+    if not current_user.logged_as_admin:
+        return False, "User is not logged as admin"
+
+    current_user.logged_as_admin = False
+
+    return current_user, None
+

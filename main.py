@@ -26,10 +26,14 @@ login_manager.init_app(app)
 
 @app.route('/')
 def main():
+    server_data = {'can_be_admin':current_user.can_be_admin,
+                   'logged_as_admin':current_user.logged_as_admin}
     if not current_user.is_authenticated:
-        return render_template('ask_login.html', login_url=google_login.authorization_url())
+        return render_template('ask_login.html', login_url=google_login.authorization_url(),
+                               server_data=server_data)
     else:
-        return render_template('main.html', current_user=current_user)
+        return render_template('main.html', current_user=current_user,
+                                server_data=server_data)
 
 
 @google_login.login_success
@@ -90,7 +94,20 @@ def admin_login():
 
     login_user(user)
 
-    return jsonify(message='hello')
+    return jsonify(message='logged in')
+
+
+@app.route('/api/admin/logout', methods=['POST'])
+@login_required
+def admin_logout():
+    user, error = authentication.logout_admin()
+
+    if error:
+        return make_response(jsonify(error=error), 500)
+
+    login_user(user)
+
+    return jsonify(message='logged out')
 
 
 if __name__ == '__main__':
