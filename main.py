@@ -6,7 +6,7 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
 from repository.models import db
-from logic import authentication, matches
+from logic import authentication, matches, utils
 
 # Setup application and database
 app = Flask(__name__, static_folder='static')
@@ -26,8 +26,11 @@ login_manager.init_app(app)
 
 @app.route('/')
 def main():
-    server_data = {'can_be_admin':current_user.can_be_admin,
-                   'logged_as_admin':current_user.logged_as_admin}
+    server_data = {'can_be_admin': current_user.can_be_admin if current_user.is_authenticated else False,
+                   'logged_as_admin': current_user.logged_as_admin if current_user.is_authenticated else False,
+                   'urls': { 'load_teams': url_for('load_teams') }
+                  }
+
     if not current_user.is_authenticated:
         return render_template('ask_login.html', login_url=google_login.authorization_url(),
                                server_data=server_data)
@@ -66,7 +69,7 @@ def load_user(signature):
     return user
 
 
-@app.route('/api/load_teams')
+@app.route('/api/load_teams', methods=['POST'])
 @utils.login_as_admin_required
 def load_teams():
     result, error = matches.load_teams()
