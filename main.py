@@ -67,7 +67,7 @@ def load_user(signature):
 
 
 @app.route('/api/load_teams')
-@login_required
+@utils.login_as_admin_required
 def load_teams():
     result, error = matches.load_teams()
 
