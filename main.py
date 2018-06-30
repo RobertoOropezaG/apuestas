@@ -28,7 +28,8 @@ login_manager.init_app(app)
 def main():
     server_data = {'can_be_admin': current_user.can_be_admin if current_user.is_authenticated else False,
                    'logged_as_admin': current_user.logged_as_admin if current_user.is_authenticated else False,
-                   'urls': { 'load_teams': url_for('load_teams') }
+                   'urls': { 'load_teams': url_for('load_teams'),
+                            'load_matches': url_for('load_matches') }
                   }
 
     if not current_user.is_authenticated:
@@ -79,11 +80,14 @@ def load_teams():
     return jsonify(response='success')
 
 
-@app.route('/api/matches/<date>', methods=['GET'])
+@app.route('/api/matches', defaults={'date': None}, methods=['POST'])
+@app.route('/api/matches/<date>', methods=['POST'])
 @login_required
-def get_matches(date):
-    matches.get_matches
-    return jsonify(matches='not implemented')
+def load_matches(date=None):
+    result, error = matches.load_matches(date)
+    if error: return make_response(jsonify(error=error), 500)
+
+    return jsonify(response='success')
 
 
 @app.route('/api/admin/login', methods=['POST'])

@@ -69,6 +69,22 @@ $(document).ready(function() {
 					menuBarViewModel.loading('');
 				}
 			})
+		},
+		loadMatches: function(model, ev) {
+			menuBarViewModel.loading('matches');
+			$.ajax({
+				url: serverData.urls.load_matches,
+				type: 'POST',
+				success: function(result) {
+					showCallout('success', 'Matches loaded');
+				},
+				error: function(result) {
+					showCallout('alert', 'Couldn\'t load matches');
+				},
+				complete: function() {
+					menuBarViewModel.loading('');
+				}
+			})
 		}
 	}
 

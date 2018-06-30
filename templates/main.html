@@ -13,8 +13,9 @@
         <i class='fi fi-refresh fi-spin' data-bind="visible: loading() == 'teams'"></i>
       </button>
       <button class="button"
-          data-bind="visible: logged_as_admin">
+          data-bind="visible: logged_as_admin, click: loadMatches, disable: loading() == 'matches'">
         Load FIFA matches
+        <i class='fi fi-refresh fi-spin' data-bind="visible: loading() == 'matches'"></i>
       </button>
     </div>
 
