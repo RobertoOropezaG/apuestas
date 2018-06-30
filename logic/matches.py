@@ -26,6 +26,22 @@ def get_json_response(url):
     return response_json, None
 
 
+def get_matches(date=None):
+    matches = Match.query.filter(Match.date >= date).paginate(1, 5).items
+
+    return [
+        {
+            'id': match.id,
+            'date': match.date,
+            'team1': { 'name': match.team1.name, 'flag': match.team1.flag_picture },
+            'team2': { 'name': match.team2.name, 'flag': match.team2.flag_picture },
+            'finished': match.finished,
+            'score1': match.score1,
+            'score2': match.score2
+        } for match in matches
+    ], None
+
+
 def load_teams():
     fixture_json, error = get_json_response(OPEN_FOOTBALL_URL)
     

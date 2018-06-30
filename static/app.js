@@ -90,6 +90,18 @@ $(document).ready(function() {
 
 
 	ko.applyBindings(menuBarViewModel)
+
+	var today = new Date().toISOString().split('T')[0];
+	$.ajax({
+		url: serverData.urls.get_matches + '/' + today,
+		type: 'GET',
+		success: function(result) {
+			console.log(result);
+		},
+		error: function(result) {
+			showCallout('alert', 'Couldn\'t get matches')
+		}
+	})
 });
 
 function showCallout(kind, title, message) {
